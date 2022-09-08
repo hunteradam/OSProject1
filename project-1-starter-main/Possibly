@@ -27,15 +27,15 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 		
-		char *line;
 		struct Line *current = NULL;
 		size_t len = 0;
 		struct Line* lineS = (struct Line*) malloc(sizeof(struct Line));
-		while (getline(&line, &len, inputFile) != -1) {
-			lineS->line = line;
+		lineS->line = NULL;
+		while (getline(&lineS->line, &len, inputFile) != -1) {
 			lineS->back = current;
 			current = lineS;
-			struct Line* lineS = (struct Line*) malloc(sizeof(struct Line));
+			lineS = (struct Line*) malloc(sizeof(struct Line));
+			lineS->line = NULL;
 			if (lineS == NULL) {
 				fprintf(stderr, "error: struct no workie workie");
 				return 1;
