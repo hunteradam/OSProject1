@@ -14,8 +14,16 @@ int main(int argc, char *argv[])
 {
 
 	if (argc == 3) {
-		
-		if (!strcmp(argv[1], argv[2])) {
+		int i = 0;
+		int breakLine = 0;
+		while (argv[1][i] != '\0' || argv[2][i] != '\0') {
+			if (argv[1][i] != argv[2][i]) {
+				breakLine = 1;
+				break;
+			}
+			i++;
+		}
+		if (breakLine == 0) {
 			fprintf(stderr, "error: input and output file must differ\n");
 			return 1;
 		}
@@ -40,9 +48,8 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "error: struct no workie workie");
 				return 1;
 			}
-			//printf("%s", line);
 		} 
-		// free(lineS);
+		
 		fclose(inputFile);
 		FILE* outputFile;
 		outputFile = fopen(argv[2], "w");
@@ -58,11 +65,10 @@ int main(int argc, char *argv[])
 			free(current);
 			current = back;
 		}
-		
 		fclose(outputFile);
 		
 	}
-	else if (argc > 3) {
+	else if (argc > 3 || argc < 2) {
 		fprintf(stderr, "usage: reverse <input> <output>\n");
 		return 1;
 	}
@@ -73,17 +79,20 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "error: cannot open file '%s'\n", argv[1]);
 			return 1;
 		}
+
 		struct Line *current = NULL;
-		char *line = (char*) malloc(12*sizeof(char));
-		int newCount = 0;
-		while (fgets(line, sizeof(line), inputFile)) {
-			
-			struct Line* lineS = (struct Line*) malloc(sizeof(struct Line));
-			lineS->line = line;
+		size_t len = 0;
+		struct Line* lineS = (struct Line*) malloc(sizeof(struct Line));
+		lineS->line = NULL;
+		while (getline(&lineS->line, &len, inputFile) != -1) {
 			lineS->back = current;
 			current = lineS;
-			newCount = newCount + 1;
-			line = (char*) malloc(12*sizeof(char));
+			lineS = (struct Line*) malloc(sizeof(struct Line));
+			lineS->line = NULL;
+			if (lineS == NULL) {
+				fprintf(stderr, "error: struct no workie workie");
+				return 1;
+			}
 		} 
 		
 		
@@ -93,9 +102,7 @@ int main(int argc, char *argv[])
 			free(current->line);
 			free(current);
 			current = back;
-			
 		}
-		free(line);
 		fclose(inputFile);
 	}
 	
